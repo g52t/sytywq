@@ -9,11 +9,8 @@ mdf = io.open(mdpath, mode="r", encoding="utf-8")
 mdt = mdf.read()
 content = markdown.markdown(mdt)
 
-uptime = '2022-02-24 15:57:00'
-
 outt = io.open(srcpath, mode="r", encoding="utf-8").read()
 outt = outt.replace('<!-- contant -->', content)
-outt = outt.replace('<!-- uptime -->', uptime)
 
 
 def get_media_html(path, pre=''):
@@ -39,5 +36,8 @@ outt = outt.replace('<!-- sj -->', sjhtml)
 outpath = os.path.join(os.path.dirname(__file__), '..', 'index.html')
 with io.open(outpath, mode="w", encoding="utf-8") as f:
     f.write(outt)
+
+uptime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+outt = outt.replace('<!-- uptime -->', uptime)
 
 print(datetime.datetime.now())
