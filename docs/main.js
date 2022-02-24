@@ -17,6 +17,10 @@ function stopVideo(el) {
     });
 }
 
+function getImageSrc(el) {
+    return el.src || $(el).attr('data-original')
+}
+
 $(function () {
     $("img.lazyload").lazyload({effect: "fadeIn"});
     $.each($(".video"), function (i, v) {
@@ -31,5 +35,23 @@ $(function () {
                 el.pause();
         });
     })
-
+    $('img').click(function (el) {
+        let src = getImageSrc(this);
+        console.log(src);
+        if (WeixinJSBridge) {
+            let imgs = [];
+            $.each($('img'), function (i, im) {
+                let s = getImageSrc(im);
+                if (s) {
+                    imgs.push(s);
+                }
+            });
+            WeixinJSBridge.invoke("imagePreview", {
+                "urls": imgs,
+                "current": src
+            });
+        } else {
+            window.open(src);
+        }
+    });
 });
