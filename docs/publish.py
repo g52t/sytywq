@@ -33,7 +33,7 @@ def get_media_html(path, pre=''):
         elif rpath.endswith('mp4'):
             elesp.append('<div class="element-item video"><video src="%s"></video><span>%s<em class="btn-play">播放视频</em></span></div>' % (rpath, r.split('.')[0].split('-')[-1]))
         else:
-            oths.append('<a target="_blank" href="%s">《%s》</a>' % (rpath, r.split('-')[-1]))
+            oths.append('<a href="%s">《%s》</a>' % (rpath, r.split('-')[-1]))
     return '\n'.join(eles + elesp + oths)
 
 
