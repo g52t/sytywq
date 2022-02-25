@@ -18,7 +18,7 @@ function stopVideo(el) {
 }
 
 function getImageSrc(el) {
-    return el.src || $(el).attr('data-original')
+    return el.src || $(el).attr('v-src') || $(el).attr('data-original')
 }
 
 $(function () {
