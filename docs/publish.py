@@ -3,6 +3,99 @@ import io
 import markdown
 import datetime
 
+
+def get_img_with_width(img, width=0, height=0, mode='limit'):
+    from PIL import Image
+    (bw, bh) = img.size
+    if mode == 'fit' and width and height and bw and bh:
+        # 等比例缩放
+        ss = float(bw) / bh
+        ds = float(width) / height
+        if ss > ds:
+            # 太宽
+            nw = int(bh * ds)
+            ow = (bw - nw) / 2
+            img = img.crop((ow, 0, bw - ow, bh), )
+            bw = nw
+        elif ds > ss:
+            # 太高
+            nh = int(bw / ds)
+            oh = (bh - nh) / 2
+            img = img.crop((0, oh, bw, bh - oh), )
+            bh = nh
+    if mode == 'limit':
+        # 现在最大
+        ss = float(bw) / bh
+        ds = float(width) / height
+        if ss > ds:
+            # 太宽
+            bw = width
+            bh = int(bw / ss) or 1
+            img = img.resize((bw, bh), Image.ANTIALIAS)
+        elif ds > ss:
+            # 太高
+            bh = height
+            bw = int(bh * ss) or 1
+            img = img.resize((bw, bh), Image.ANTIALIAS)
+    elif width and bw != width:
+        if not height:
+            height = int(float(bh) * float(width) / float(bw))
+        img = img.resize((width, height), Image.ANTIALIAS)
+    return img
+
+
+def get_file_md5(path):
+    import hashlib
+    with open(path, 'rb') as fp:
+        data = fp.read()
+    return hashlib.md5(data).hexdigest()
+
+
+def get_img_thumb(path, thumbpath, width=300):
+    from PIL import Image
+    tn = get_file_md5(path) + '-p.jpeg'
+    tp = os.path.join(thumbpath, tn)
+    if not os.path.exists(tp):
+        img = Image.open(path)
+        nimg = get_img_with_width(img, width=width, height=width)
+        if nimg.mode != 'RGB':
+            nimg = nimg.convert('RGB')
+        nimg.save(tp)
+    return tn
+
+
+def get_voide_thumb(path, thumbpath, width=300):
+    with open(path, 'rb') as fp:
+        data = fp.read()
+    tn = get_file_md5(path) + '-v.jpeg'
+    tp = os.path.join(thumbpath, tn)
+    if not os.path.exists(tp):
+        from PIL import Image
+        tmpp = '/tmp/' + tn
+        cmd = 'ffmpeg -i %s -vframes 1 -y %s' % (
+            os.path.abspath(path),
+            tmpp
+        )
+        print(cmd)
+        r = os.system(cmd)
+        print(r)
+        # rt = os.popen(cmd).readlines()
+        img = Image.open(tmpp)
+        nimg = get_img_with_width(img, width=width, height=width)
+        if nimg.mode != 'RGB':
+            nimg = nimg.convert('RGB')
+        nimg.save(tp)
+    return tn
+
+
+# from PIL import Image
+#
+# img = Image.open('/Users/robin/DO/GitHub/sytywq/相关证据/实景/实景-道路3.jpeg')
+# nimg = get_img_with_width(img, width=300, height=300)
+# img.show()
+# nimg.show()
+# exit()
+
 mdpath = os.path.join(os.path.dirname(__file__), '..', 'README.md')
 srcpath = os.path.join(os.path.dirname(__file__), 'inde.src.html')
 mdf = io.open(mdpath, mode="r", encoding="utf-8")
@@ -19,6 +112,7 @@ def get_media_html(path, pre=''):
     eles = []
     elesp = []
     oths = []
+    thumbpath = os.path.join(os.path.dirname(__file__), 'thumb')
     for r in sorted(list(os.listdir(path))):
         if r[0] == '.':
             continue
@@ -29,9 +123,11 @@ def get_media_html(path, pre=''):
         # fpath = os.path.abspath(fpath)
         if rpath.endswith('jpeg') or rpath.endswith('png') or rpath.endswith('jpg'):
             # print(path, fpath, rpath)
-            eles.append('<div class="element-item image"><img class="lazyload" data-original="%s"/><span>%s</span></div>' % (rpath, r.split('.')[0].split('-')[-1]))
+            thumb = 'docs/thumb/' + get_img_thumb(fpath, thumbpath)
+            eles.append('<div class="element-item image"><img class="lazyload" v-src="%s" data-original="%s"/><span>%s</span></div>' % (rpath, thumb, r.split('.')[0].split('-')[-1]))
         elif rpath.endswith('mp4'):
-            elesp.append('<div class="element-item video"><video src="%s"></video><span>%s<em class="btn-play">播放视频</em></span></div>' % (rpath, r.split('.')[0].split('-')[-1]))
+            thumb = 'docs/thumb/' + get_voide_thumb(fpath, thumbpath)
+            elesp.append('<div class="element-item video"><video src="%s" poster="%s"></video><span>%s<em class="btn-play">播放视频</em></span></div>' % (rpath, thumb, r.split('.')[0].split('-')[-1]))
         else:
             oths.append('<a href="%s">《%s》</a>' % (rpath, r.split('-')[-1]))
     return '\n'.join(eles + elesp + oths)
