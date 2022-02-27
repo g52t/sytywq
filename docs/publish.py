@@ -162,6 +162,8 @@ outt = outt.replace('<!-- df -->', dfhtml)
 wdhtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关文档'), '相关文档', orderby='time')
 outt = outt.replace('<!-- wd -->', wdhtml)
 
+outt = outt.replace('<!-- xx -->', get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关证据', '进度', '学校'), '相关证据/进度/学校', orderby='time'))
+
 outt = outt.replace('<code>', '<pre class="code">').replace('</code>', '</pre>')
 
 uptime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
