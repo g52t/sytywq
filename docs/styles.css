@@ -42,4 +42,12 @@
   color: blue;
   text-decoration: underline;
 }
+.content code {
+  border-color: #f00;
+  border-left-style: solid;
+  border-left-width: 2px;
+  display: block;
+  margin-left: 5px;
+  padding-left: 5px;
+}
 /*# sourceMappingURL=styles.css.map */
