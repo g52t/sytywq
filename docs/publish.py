@@ -1,5 +1,6 @@
 import os
 import io
+import re
 import markdown
 import datetime
 
@@ -105,14 +106,13 @@ content = markdown.markdown(mdt)
 outt = io.open(srcpath, mode="r", encoding="utf-8").read()
 outt = outt.replace('<!-- contant -->', content)
 
-
+thumbpath = os.path.join(os.path.dirname(__file__), 'thumb')
 def get_media_html(path, pre=''):
     path = os.path.abspath(path)
     os.path.join(os.path.dirname(__file__), '..', 'README.md')
     eles = []
     elesp = []
     oths = []
-    thumbpath = os.path.join(os.path.dirname(__file__), 'thumb')
     for r in sorted(list(os.listdir(path))):
         if r[0] == '.':
             continue
@@ -129,7 +129,7 @@ def get_media_html(path, pre=''):
             thumb = 'docs/thumb/' + get_voide_thumb(fpath, thumbpath)
             elesp.append('<div class="element-item video"><video src="%s" poster="%s"></video><span>%s<em class="btn-play">播放视频</em></span></div>' % (rpath, thumb, r.split('.')[0].split('-')[-1]))
         else:
-            oths.append('<a href="%s">《%s》</a>' % (rpath, r.split('-')[-1]))
+            oths.append('<div class="element-item file"><a href="%s">《%s》</a></div>' % (rpath, r.split('-')[-1]))
     return '\n'.join(eles + elesp + oths)
 
 
@@ -148,8 +148,22 @@ outt = outt.replace('<!-- df -->', dfhtml)
 wdhtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关文档'), '相关文档')
 outt = outt.replace('<!-- wd -->', wdhtml)
 
+outt = outt.replace('<code>', '<pre class="code">').replace('</code>', '</pre>')
+
 uptime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 outt = outt.replace('<!-- uptime -->', uptime)
+
+for t in re.findall('<img alt="[^"]+" src="[^"]+"[^>]*>', outt):
+    rs = re.findall('<img alt="([^"]+)" src="([^"]+)"', t)
+    if rs:
+        rs = rs[0]
+        alt = rs[0]
+        img = rs[1]
+        fpath = os.path.join(os.path.abspath(os.path.dirname(mdpath)), *img.split('/'))
+        thumb = 'docs/thumb/' + get_img_thumb(fpath, thumbpath)
+        imgh = '<div class="element-item image"><img class="lazyload" v-src="%s" data-original="%s"/><span>%s</span></div>' % (img, thumb, alt)
+        outt = outt.replace(t, imgh)
+
 
 outpath = os.path.join(os.path.dirname(__file__), '..', 'index.html')
 with io.open(outpath, mode="w", encoding="utf-8") as f:

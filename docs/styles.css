@@ -14,7 +14,7 @@
 .content .elements {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-around;
 }
 .content .element-item {
   width: 30vw;
@@ -23,17 +23,26 @@
   align-items: center;
   border: 1px solid #eee;
   margin: 5px 2px;
-  justify-content: end;
+  justify-content: center;
   cursor: pointer;
 }
 .content .element-item:hover {
   border-color: grey;
 }
+.content .element-item span {
+  text-align: center;
+}
+.content .element-item.file {
+  width: 100vw;
+  justify-content: start;
+  align-items: self-start;
+  border: none;
+}
 .content .element-item.video {
-  width: 80vw;
+  width: 40vw;
 }
 .content .element-item.video video {
-  width: 80vw;
+  width: 40vw;
   height: auto;
   max-width: max-content;
   max-height: max-content;
@@ -42,12 +51,17 @@
   color: blue;
   text-decoration: underline;
 }
-.content code {
+.content code,
+.content .code {
   border-color: #f00;
   border-left-style: solid;
   border-left-width: 2px;
   display: block;
   margin-left: 5px;
   padding-left: 5px;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
 }
-/*# sourceMappingURL=styles.css.map */

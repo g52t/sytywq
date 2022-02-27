@@ -38,7 +38,7 @@ $(function () {
     $('img').click(function (el) {
         let src = getImageSrc(this);
         console.log(src);
-        if (WeixinJSBridge) {
+        if (window.WeixinJSBridge) {
             let imgs = [];
             $.each($('img'), function (i, im) {
                 let s = getImageSrc(im);
