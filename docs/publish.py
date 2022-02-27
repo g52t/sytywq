@@ -107,13 +107,21 @@ outt = io.open(srcpath, mode="r", encoding="utf-8").read()
 outt = outt.replace('<!-- contant -->', content)
 
 thumbpath = os.path.join(os.path.dirname(__file__), 'thumb')
-def get_media_html(path, pre=''):
+
+
+def get_media_html(path, pre='', orderby=''):
     path = os.path.abspath(path)
     os.path.join(os.path.dirname(__file__), '..', 'README.md')
     eles = []
     elesp = []
     oths = []
-    for r in sorted(list(os.listdir(path))):
+    files = sorted(list(os.listdir(path)))
+    if orderby == 'time':
+        files = sorted(files, key=lambda r: os.path.getmtime(os.path.join(path, r)))
+    if orderby == '-time':
+        files = sorted(files, key=lambda r: os.path.getmtime(os.path.join(path, r)), reverse=True)
+    all = []
+    for r in files:
         if r[0] == '.':
             continue
         if r.endswith('.md'):
@@ -124,13 +132,19 @@ def get_media_html(path, pre=''):
         if rpath.endswith('jpeg') or rpath.endswith('png') or rpath.endswith('jpg'):
             # print(path, fpath, rpath)
             thumb = 'docs/thumb/' + get_img_thumb(fpath, thumbpath)
-            eles.append('<div class="element-item image"><img class="lazyload" v-src="%s" data-original="%s"/><span>%s</span></div>' % (rpath, thumb, r.split('.')[0].split('-')[-1]))
+            ele = '<div class="element-item image"><img class="lazyload" v-src="%s" data-original="%s"/><span>%s</span></div>' % (rpath, thumb, r.split('.')[0].split('-')[-1])
+            eles.append(ele)
+            all.append(ele)
         elif rpath.endswith('mp4'):
             thumb = 'docs/thumb/' + get_voide_thumb(fpath, thumbpath)
-            elesp.append('<div class="element-item video"><video src="%s" poster="%s"></video><span>%s<em class="btn-play">播放视频</em></span></div>' % (rpath, thumb, r.split('.')[0].split('-')[-1]))
+            ele = '<div class="element-item video"><video src="%s" poster="%s"></video><span>%s<em class="btn-play">播放视频</em></span></div>' % (rpath, thumb, r.split('.')[0].split('-')[-1])
+            elesp.append(ele)
+            all.append(ele)
         else:
-            oths.append('<div class="element-item file"><a href="%s">《%s》</a></div>' % (rpath, r.split('-')[-1]))
-    return '\n'.join(eles + elesp + oths)
+            ele = '<div class="element-item file"><a href="%s">《%s》</a></div>' % (rpath, r.split('-')[-1])
+            oths.append(ele)
+            all.append(ele)
+    return '\n'.join(all if orderby else (eles + elesp + oths))
 
 
 xchtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关证据', '宣传'), '相关证据/宣传')
@@ -139,13 +153,13 @@ outt = outt.replace('<!-- xc -->', xchtml)
 sjhtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关证据', '实景'), '相关证据/实景')
 outt = outt.replace('<!-- sj -->', sjhtml)
 
-zchtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关证据', '法规政策'), '相关证据/法规政策')
+zchtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关证据', '法规政策'), '相关证据/法规政策', orderby='time')
 outt = outt.replace('<!-- zc -->', zchtml)
 
-dfhtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关证据', '答复文件'), '相关证据/答复文件')
+dfhtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关证据', '答复文件'), '相关证据/答复文件', orderby='time')
 outt = outt.replace('<!-- df -->', dfhtml)
 
-wdhtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关文档'), '相关文档')
+wdhtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关文档'), '相关文档', orderby='time')
 outt = outt.replace('<!-- wd -->', wdhtml)
 
 outt = outt.replace('<code>', '<pre class="code">').replace('</code>', '</pre>')
@@ -163,7 +177,6 @@ for t in re.findall('<img alt="[^"]+" src="[^"]+"[^>]*>', outt):
         thumb = 'docs/thumb/' + get_img_thumb(fpath, thumbpath)
         imgh = '<div class="element-item image"><img class="lazyload" v-src="%s" data-original="%s"/><span>%s</span></div>' % (img, thumb, alt)
         outt = outt.replace(t, imgh)
-
 
 outpath = os.path.join(os.path.dirname(__file__), '..', 'index.html')
 with io.open(outpath, mode="w", encoding="utf-8") as f:
