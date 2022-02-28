@@ -1,3 +1,13 @@
+window.onerror = function (error, file, l, c) {
+    let emsg = error + '  file:' + file + '  line:' + l + '  colunm:' + c;
+    if (file && file.indexOf('easyui') >= 0) {
+        console.log(emsg);
+        return true;
+    }
+    alert(emsg);
+    return false;
+};
+
 function launchFullscreen(element) {
     if (element.requestFullscreen) {
         element.requestFullscreen();
@@ -18,7 +28,14 @@ function stopVideo(el) {
 }
 
 function getImageSrc(el) {
-    return $(el).attr('v-src') || el.src || $(el).attr('data-original')
+    let src = $(el).attr('v-src') || el.src || $(el).attr('data-original');
+    if (src.indexOf('://') <= 0) {
+        let pre = window.location.origin; //window.location.protocol + "//" + window.location.host;
+        if (src[0] !== '/')
+            pre += window.location.pathname;
+        src = pre + src;
+    }
+    return src;
 }
 
 $(function () {
