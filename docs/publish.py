@@ -112,6 +112,7 @@ thumbpath = os.path.join(os.path.dirname(__file__), 'thumb')
 def get_media_html(path, pre='', orderby=''):
     path = os.path.abspath(path)
     os.path.join(os.path.dirname(__file__), '..', 'README.md')
+    meles = []
     eles = []
     elesp = []
     oths = []
@@ -124,30 +125,39 @@ def get_media_html(path, pre='', orderby=''):
     for r in files:
         if r[0] == '.':
             continue
-        if r.endswith('.md'):
-            continue
+        # if r.endswith('.md'):
+        #     continue
         if '-raw' in r:
             continue
         fpath = os.path.join(path, r)
         rpath = pre + fpath.replace(path, '')
         # fpath = os.path.abspath(fpath)
+        name = r.split('.')[0].split('-')[-1]
+        rs = re.findall('202\d{5}', name)
+        if rs:
+            rs = rs[0]
+            name = name.replace(rs, '%s-%s-%s' % (rs[0:4], rs[4:6], rs[6:8]))
         if rpath.endswith('jpeg') or rpath.endswith('png') or rpath.endswith('jpg'):
             # print(path, fpath, rpath)
             thumb = 'docs/thumb/' + get_img_thumb(fpath, thumbpath)
-            ele = '<div class="element-item image"><img class="lazyload" v-src="%s" data-original="%s"/><span>%s</span></div>' % (rpath, thumb, r.split('.')[0].split('-')[-1])
+            ele = '<div class="element-item image"><img class="lazyload" v-src="%s" data-original="%s"/><span>%s</span></div>' % (rpath, thumb, name)
             eles.append(ele)
             all.append(ele)
         elif rpath.endswith('mp4'):
             thumb = 'docs/thumb/' + get_voide_thumb(fpath, thumbpath)
-            ele = '<div class="element-item video"><video src="%s" poster="%s"></video><span>%s<em class="btn-play">播放视频</em></span></div>' % (rpath, thumb, r.split('.')[0].split('-')[-1])
+            ele = '<div class="element-item video"><video src="%s" poster="%s"></video><span>%s<em class="btn-play">播放视频</em></span></div>' % (rpath, thumb, name)
             elesp.append(ele)
             all.append(ele)
+        elif rpath.endswith('.md'):
+            with io.open(rpath, encoding='utf8') as f:
+                ele = markdown.markdown(f.read())
+                meles.append(ele)
+                all.insert(0, ele)
         else:
-            ele = '<div class="element-item file"><a href="%s">《%s》</a></div>' % (rpath, r.split('-')[-1])
+            ele = '<div class="element-item file"><a href="%s">《%s》</a></div>' % (rpath, name)
             oths.append(ele)
             all.append(ele)
-    return '\n'.join(all if orderby else (eles + elesp + oths))
-
+    return '\n'.join(all if orderby else (meles + eles + elesp + oths))
 
 xchtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关证据', '宣传'), '相关证据/宣传')
 outt = outt.replace('<!-- xc -->', xchtml)
@@ -164,7 +174,7 @@ outt = outt.replace('<!-- df -->', dfhtml)
 wdhtml = get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关文档'), '相关文档', orderby='time')
 outt = outt.replace('<!-- wd -->', wdhtml)
 
-outt = outt.replace('<!-- xx -->', get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关证据', '进度', '学校'), '相关证据/进度/学校', orderby='time'))
+outt = outt.replace('<!-- xx -->', get_media_html(os.path.join(os.path.dirname(__file__), '..', '相关证据', '进度', '学校'), '相关证据/进度/学校', orderby='all'))
 
 outt = outt.replace('<code>', '<pre class="code">').replace('</code>', '</pre>')
 

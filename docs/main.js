@@ -71,4 +71,50 @@ $(function () {
             window.open(src);
         }
     });
+    let titls = [];
+    $.each($('h1'), function (ix, h) {
+        if (!ix)
+            return;
+        let $h = $(h);
+        let title = $h.text().trim();
+        $h.attr('id', 'h' + String(ix));
+        let texts = [];
+        let next = $h.next();
+        while (next.length && next[0].tagName !== 'H1') {
+            texts.push(next.text().trim());
+            next = next.next();
+        }
+        let ctag = texts.join('.');
+        let rtag = window.localStorage[title];
+        let isnew = rtag && rtag !== ctag;
+        if (!isnew) {
+            window.localStorage[title] = rtag;
+        }
+        let $li = $(`<li><a href="#h${ix}">${title}</a>${isnew ? '<span class="new-flag">新!</span>' : ''}</li>`);
+        $('.catalog').append($li);
+
+        $li.click(function () {
+            window.localStorage[title] = ctag;
+            //$li.find('.new-flag').remove();
+        });
+        if (isnew)
+            $h.append($('<span class="new-flag">新!</span>'));
+        titls.push([$h, $li, ctag, title]);
+    });
+    $('h1').eq(1).before($('.catalog'));
+
+    setInterval(function () {
+        titls.forEach(function (t, ix) {
+            let $h = t[0];
+            let $li = t[1];
+            let ctag = t[2];
+            let title = t[3];
+            let a = $h.offset().top;
+            if (a >= $(window).scrollTop() && a < ($(window).scrollTop() + $(window).height())) {
+                //$h.find('.new-flag').remove();
+                //$li.find('.new-flag').remove();
+                window.localStorage[title] = ctag;
+            }
+        });
+    }, 1000);
 });

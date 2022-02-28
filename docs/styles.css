@@ -65,3 +65,20 @@
   white-space: -o-pre-wrap;
   word-wrap: break-word;
 }
+ul {
+  padding-left: 10px;
+}
+ul.catalog {
+  border: 1px solid #eeeeee;
+  padding: 5px 15px;
+}
+ul.catalog a {
+  flex-grow: 1;
+  color: dodgerblue;
+  font-size: 16px;
+}
+.new-flag {
+  color: red;
+  margin-left: 5px;
+  font-size: 0.6em;
+}
