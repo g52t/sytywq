@@ -126,6 +126,8 @@ def get_media_html(path, pre='', orderby=''):
             continue
         if r.endswith('.md'):
             continue
+        if '-raw' in r:
+            continue
         fpath = os.path.join(path, r)
         rpath = pre + fpath.replace(path, '')
         # fpath = os.path.abspath(fpath)
