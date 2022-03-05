@@ -15,6 +15,10 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+  align-items: flex-end;
+}
+.content .elements ul {
+  width: 100%;
 }
 .content .element-item {
   width: 30vw;
